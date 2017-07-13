@@ -20,33 +20,33 @@ object ThingHandler {
   import io.circe.generic.auto._
   import crudex.model.instances._
 
-  val helloWorldService = HttpService {
-    case GET -> Root / "things" / IntVar(thingId) => {
+  val thingService = HttpService {
+    case GET -> Root / "things" / IntVar(thingId) =>
       toJsonResponseWithOption (
         thingStoreM >>=  getThing(ThingId(thingId))
       )
-    }
-    case GET -> Root / "things" => {
+
+    case GET -> Root / "things" =>
       toJsonResponseList(
         thingStoreM >>= getThings
       )
-    }
-    case req @ POST -> Root / "things" => {
+
+    case req @ POST -> Root / "things" =>
       for {
         thing <- req.as(jsonOf[Thing])
         res  <- toJsonResponse(thingStoreM >>=  createThing(thing))
       } yield (res)
-    }
-    case req @ PUT -> Root / "things"/ IntVar(thingId) => {
+
+    case req @ PUT -> Root / "things"/ IntVar(thingId) =>
       for {
         thing <- req.as(jsonOf[Thing])
         res  <- toJsonResponse(thingStoreM >>= modifyThing(ThingId(thingId))(thing))
       } yield (res)
-    }
-    case DELETE -> Root / "things" / IntVar(thingId) => {
+
+    case DELETE -> Root / "things" / IntVar(thingId) =>
       toJsonResponse(
         thingStoreM >>= deleteThing(ThingId(thingId))
       )
-    }
+
   }
 }

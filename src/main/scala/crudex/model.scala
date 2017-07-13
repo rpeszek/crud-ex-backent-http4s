@@ -21,6 +21,8 @@ object model {
   object instances {
     implicit val thingIdEncoder: Encoder[ThingId] =
       Encoder.encodeLong.contramap[ThingId](_.id)
+    implicit val userIdEncoder: Encoder[UserId] =
+      Encoder.encodeLong.contramap[UserId](_.id)
 
 //TODO getting ambigous implicit values
 //      implicit def thinIListEncoder[A](implicit A: Encoder[A], ev: Encoder[List[A]]): Encoder[IList[A]] =

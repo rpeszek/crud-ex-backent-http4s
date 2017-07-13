@@ -8,16 +8,15 @@ import scalaz.concurrent.Task
 import org.http4s.server.blaze._
 import org.http4s.server.syntax._
 
-import Sample._
 
 object Main extends ServerApp {
 
-  val services = ThingHandler.helloWorldService orElse helloWorldService
+  val services = ThingHandler.thingService orElse StaticHandler.staticService orElse UserHandler.userService
 
   override def server(args: List[String]): Task[Server] = {
     BlazeBuilder
       .bindHttp(8080, "localhost")
-      .mountService(services, "/api")
+      .mountService(services, "") //string specifies root folder
       .start
   }
 

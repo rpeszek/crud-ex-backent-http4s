@@ -21,5 +21,6 @@ libraryDependencies ++= Seq(
   "io.circe" %% "circe-literal" % circeVersion,
 
   "org.scala-stm" %% "scala-stm" % "0.8",
-  "com.lihaoyi" %% "scalatags" % "0.6.5"
+  "com.lihaoyi" %% "scalatags" % "0.6.5",
+  "org.http4s" %% "http4s-twirl" % http4sVersion
 )

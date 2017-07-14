@@ -4,7 +4,8 @@ import org.http4s.circe._
 import io.circe._
 import io.circe.syntax._
 import crudex.model.ElmConfig
-import crudex.view.Misc.ScalatagsHtmlEncoder
+import crudex.utils.ScalatagsInstances._
+import org.http4s.EntityEncoder
 
 import scalatags.Text.all._
 
@@ -36,9 +37,8 @@ object ElmApp {
         stripMargin
    }
 
-   object implicits {
-      implicit val elmPageAsHtml: ScalatagsHtmlEncoder[ElmConfig] = new ScalatagsHtmlEncoder[ElmConfig]{
-        def toScalatagsHtml(a:ElmConfig): ConcreteHtmlTag[String] = elmPage(a)
-      }
+   object instances {
+      implicit def elmPageAsScalatagsHtml: EntityEncoder[ElmConfig] =
+          htmlScalatagEncoder.contramap[ElmConfig](content => elmPage(content))
    }
 }

@@ -1,8 +1,6 @@
 package crudex.utils
 
 import crudex.model.UserId
-import crudex.view.Misc.ScalatagsHtmlEncoder
-import crudex.view.Misc.ScalatagsHtmlEncoder.implicits._
 import org.http4s._
 import org.http4s.dsl._
 import org.http4s.MediaType._
@@ -16,6 +14,7 @@ import scalaz._
 import Scalaz._
 import scalaz.concurrent.Task
 import scalaz.effect.IO
+
 
 /**
   */
@@ -39,9 +38,7 @@ object Misc {
     }
   }
 
-  //EntityEncoder should simplify this a bit
-  def toHtmlWithScalatags[A](a: Handler[A])(implicit A: ScalatagsHtmlEncoder[A]): Task[Response] = {
-     Ok(a.unsafePerformIO.asHtmlPage).withContentType(Some(`Content-Type`(`text/html`).withCharset(DefaultCharset)))
+  def toScalatagsHtml[A](a: Handler[A])(implicit A: EntityEncoder[A]): Task[Response] = {
+    Ok(a.unsafePerformIO)
   }
-
 }

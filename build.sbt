@@ -20,5 +20,6 @@ libraryDependencies ++= Seq(
   // Optional for string interpolation to JSON model
   "io.circe" %% "circe-literal" % circeVersion,
 
-  "org.scala-stm" %% "scala-stm" % "0.8"
+  "org.scala-stm" %% "scala-stm" % "0.8",
+  "com.lihaoyi" %% "scalatags" % "0.6.5"
 )

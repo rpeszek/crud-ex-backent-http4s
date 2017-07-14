@@ -6,12 +6,14 @@ import Scalaz._
 import crudex.utils.StmMonad._
 import crudex.utils.STMContainers._
 import crudex.model._
+import crudex.utils.Misc.Handler
 
 /**
+  * TODO explicit ThingStore argument seems like too much.
+  * Either hide it with StateT or store it as val here
   */
 object ThingStm {
 
-   type Handler[A] = IO[A]
    type ThingStore = StmMap[ThingId, Thing]
 
    def initThingStore: Handler[ThingStore] =
@@ -45,7 +47,6 @@ object ThingStm {
        )
 
 
-  //TODO this probably does not work may need to fix insert to remove if exists
    def modifyThing:  ThingId => Thing => ThingStore => Handler[Thing] = thingId => thing => store =>
         atomically(
           for {

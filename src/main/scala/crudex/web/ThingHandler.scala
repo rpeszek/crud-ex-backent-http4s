@@ -22,29 +22,29 @@ object ThingHandler {
 
   val thingService = HttpService {
     case GET -> Root / "things" / IntVar(thingId) =>
-      toJsonResponseWithOption (
+      renderJsonResponseOrNotFound (
         thingStoreM >>=  getThing(ThingId(thingId))
       )
 
     case GET -> Root / "things" =>
-      toJsonResponse(
+      renderJsonResponse(
         thingStoreM >>= getThings
       )
 
     case req @ POST -> Root / "things" =>
       for {
         thing <- req.as(jsonOf[Thing])
-        res  <- toJsonResponse(thingStoreM >>=  createThing(thing))
+        res  <- renderJsonResponse(thingStoreM >>=  createThing(thing))
       } yield (res)
 
     case req @ PUT -> Root / "things"/ IntVar(thingId) =>
       for {
         thing <- req.as(jsonOf[Thing])
-        res  <- toJsonResponse(thingStoreM >>= modifyThing(ThingId(thingId))(thing))
+        res  <- renderJsonResponse(thingStoreM >>= modifyThing(ThingId(thingId))(thing))
       } yield (res)
 
     case DELETE -> Root / "things" / IntVar(thingId) =>
-      toJsonResponse(
+      renderJsonResponse(
         thingStoreM >>= deleteThing(ThingId(thingId))
       )
 

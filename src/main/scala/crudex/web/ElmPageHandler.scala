@@ -15,7 +15,7 @@ object ElmPageHandler {
 
   val elmPageService = HttpService {
     case GET -> Root / "elm"  =>
-      toScalatagsHtml (
+      renderHtmlReponse (
         getElmConfig
       )
   }

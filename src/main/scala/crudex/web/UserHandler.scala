@@ -17,7 +17,7 @@ object UserHandler {
 
   val userService = HttpService {
     case GET -> Root / "users" =>
-      toJsonResponse(
+      renderJsonResponse(
         getUsers
       )
   }

@@ -19,6 +19,9 @@ import scalaz.effect.IO
 /**
   */
 object Common {
+  /*
+  Common type, defines application effects used to persist/retrieve CRUD data
+   */
   type Handler[A] = IO[A]
 
   /*
@@ -47,19 +50,19 @@ object Common {
   private def renderResponse[A,B](a: Handler[A], toHttpResponse: ToHttpResponse[A,B])(implicit encoderEv: EntityEncoder[B]): Task[Response]  =
     toHttpResponse(a.unsafePerformIO)(encoderEv)
 
-  def toJsonResponse[A](a: Handler[A])(implicit A: Encoder[A]): Task[Response] = {
+  def renderJsonResponse[A](a: Handler[A])(implicit A: Encoder[A]): Task[Response] = {
     //brings evidence of EntityEncoder[A] based on Json (A: Encoder[A]) encoding evidence
     implicit val ev: EntityEncoder[A] = jsonEncoderOf[A]
     renderResponse(a, defaultToResponse[A])
   }
 
-  def toJsonResponseWithOption[A](a: Handler[Option[A]])(implicit A: Encoder[A]): Task[Response] = {
+  def renderJsonResponseOrNotFound[A](a: Handler[Option[A]])(implicit A: Encoder[A]): Task[Response] = {
     //brings evidence of EntityEncoder[A] based on Json (A: Encoder[A]) encoding evidence
     implicit val ev: EntityEncoder[A] = jsonEncoderOf[A]
     renderResponse(a, optionToResponse[A])
   }
 
-  def toScalatagsHtml[A](a: Handler[A])(implicit A: EntityEncoder[A]): Task[Response] =
+  def renderHtmlReponse[A](a: Handler[A])(implicit A: EntityEncoder[A]): Task[Response] =
     renderResponse(a, defaultToResponse[A])
 
 

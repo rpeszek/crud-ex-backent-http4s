@@ -6,7 +6,7 @@ import Scalaz._
 import crudex.utils.StmMonad._
 import crudex.utils.STMContainers._
 import crudex.model._
-import crudex.utils.Misc.Handler
+import crudex.utils.Common.Handler
 
 /**
   * TODO explicit ThingStore argument seems like too much.

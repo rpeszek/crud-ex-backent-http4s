@@ -1,7 +1,7 @@
 package crudex.stm
 
 import crudex.model.{Entity, UserEntity, UserId, User}
-import crudex.utils.Misc.Handler
+import crudex.utils.Common.Handler
 
 import scalaz._
 import Scalaz._

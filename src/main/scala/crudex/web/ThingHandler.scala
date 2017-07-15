@@ -4,7 +4,7 @@ import scalaz._, Scalaz._
 import org.http4s._, org.http4s.dsl._
 import org.http4s.circe._
 
-import crudex.utils.Misc._
+import crudex.utils.Common._
 import crudex.stm.ThingStm._
 import io.circe._
 import io.circe.syntax._
@@ -27,7 +27,7 @@ object ThingHandler {
       )
 
     case GET -> Root / "things" =>
-      toJsonResponseList(
+      toJsonResponse(
         thingStoreM >>= getThings
       )
 

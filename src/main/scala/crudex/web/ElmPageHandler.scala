@@ -3,7 +3,7 @@ package crudex.web
 import scalaz._, Scalaz._
 import org.http4s._, org.http4s.dsl._
 
-import crudex.utils.Misc._
+import crudex.utils.Common._
 import crudex.model._
 import crudex.stm.ElmConfigTemp._
 

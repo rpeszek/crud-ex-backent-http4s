@@ -4,7 +4,7 @@ import scalaz._, Scalaz._
 import org.http4s._, org.http4s.dsl._
 import org.http4s.circe._
 
-import crudex.utils.Misc._
+import crudex.utils.Common._
 import crudex.stm.UserTemp._
 import crudex.model._
 
@@ -17,7 +17,7 @@ object UserHandler {
 
   val userService = HttpService {
     case GET -> Root / "users" =>
-      toJsonResponseList(
+      toJsonResponse(
         getUsers
       )
   }

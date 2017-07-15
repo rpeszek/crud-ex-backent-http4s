@@ -18,16 +18,13 @@ import scalaz.effect.IO
 
 /**
   */
-object Misc {
+object Common {
   type Handler[A] = IO[A]
 
-  //TODO Temp
+
+  //TODO nices type class solution is needed
   def toJsonResponse[A](a: Handler[A])(implicit A: Encoder[A]): Task[Response] = {
     Ok(a.unsafePerformIO.asJson)
-  }
-
-  def toJsonResponseList[A](a: Handler[IList[A]])(implicit A: Encoder[List[A]]): Task[Response] = {
-    Ok(a.unsafePerformIO.toList.asJson)
   }
 
   def toJsonResponseWithOption[A](a: Handler[Option[A]])(implicit A: Encoder[A]): Task[Response] = {

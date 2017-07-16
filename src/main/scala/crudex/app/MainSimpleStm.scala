@@ -1,6 +1,6 @@
 package crudex.app
 
-import crudex.web.{ElmPageHandler, StaticHandler, ThingHandler, UserHandler}
+import crudex.web.{ElmPageHandler, StaticHandler, ThingWithStmHandler, UserHandler}
 import org.http4s.server.{Server, ServerApp}
 
 import scalaz.concurrent.Task
@@ -12,7 +12,7 @@ import org.http4s.server.syntax._
 
 object MainSimpleStm extends ServerApp {
 
-  val services = ThingHandler.thingService orElse
+  val services = ThingWithStmHandler.thingService orElse
                  StaticHandler.staticService orElse
                  UserHandler.userService orElse
                  ElmPageHandler.elmPageService

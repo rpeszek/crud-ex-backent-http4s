@@ -13,7 +13,7 @@ import crudex.app.Common._
 import io.circe.Encoder
 
 /**
-  * //TODO needs evConvertKey
+  * Generic CRUD handler that works across entities and is agnostic to which DB monadic effect is used
   */
 case class CrudHandler[K,D,E[_]](uri: String)(implicit evM: Monad[E],
                                               evRunPersist: RunDbEffect[E],

@@ -12,8 +12,10 @@ import crudex.model._
 //import org.http4s.server.syntax._
 
 /**
+  * Hardcodes Thing as entity and STM as DB effect
+  * See CrudHandler for more polymorphic take on this.
   */
-object ThingHandler {
+object ThingWithStmHandler {
   //Just loads JSON!
   import io.circe.generic.auto._
   import crudex.model.instances._

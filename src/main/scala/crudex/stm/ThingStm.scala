@@ -3,8 +3,10 @@ package crudex.stm
 import scalaz.effect.IO
 import scalaz._
 import Scalaz._
-import crudex.utils.StmMonad._
-import crudex.utils.STMContainers._
+import crudex.utils.StmSimple._
+import crudex.utils.StmSimple.StmContainers._
+//import crudex.utils.StmFree._
+//import crudex.utils.StmFree.StmContainers._
 import crudex.model._
 import crudex.utils.Common.Handler
 

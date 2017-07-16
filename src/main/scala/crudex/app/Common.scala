@@ -21,7 +21,7 @@ object Common {
   }
 
   /* Currently app used retrieveAll and retrieveRecord only */
-  trait ReadableEntity[K,D,E[_]] {
+  trait ReadDb[K,D,E[_]] {
      def retrieveAll: E[IList[Entity[K,D]]]
 
      def retrieveEntity(id: K)(implicit E:Monad[E]): E[Option[Entity[K,D]]] =
@@ -31,7 +31,7 @@ object Common {
         E.map(retrieveEntity(id))((maybeEntity: Option[Entity[K,D]]) => maybeEntity.map(_.entity))
   }
 
-  trait EditableEntity[K,D, E[_]] extends ReadableEntity[K,D,E] {
+  trait CrudDb[K,D, E[_]] extends ReadDb[K,D,E] {
      def create: D => E[Entity[K,D]]
      def update: K => D => E[D]  //TODO should this be E[Option[V]], currently this acts as create if not found
      def delete: K => E[Unit]
@@ -42,15 +42,15 @@ object Common {
     Treats persistent effect as T-Algebra
    */
   //TODO This runs effects early, think how to create http4s services so that the effect can be resolved in the Main class
-  trait RunPersistence[E[_]] {
-    def runPersistEffect[A](a: E[A]): A
+  trait RunDbEffect[E[_]] {
+    def runDbEffect[A](a: E[A]): A
   }
 
   //endregion
 
   object instances {
-    implicit def ioAsPersistHandler: RunPersistence[IO] = new RunPersistence[IO] {
-      override def runPersistEffect[A](a: IO[A]): A = a.unsafePerformIO
+    implicit def ioAsDbEffect: RunDbEffect[IO] = new RunDbEffect[IO] {
+      override def runDbEffect[A](a: IO[A]): A = a.unsafePerformIO
     }
   }
 

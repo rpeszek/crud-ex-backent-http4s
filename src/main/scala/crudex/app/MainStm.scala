@@ -24,12 +24,12 @@ object MainStm extends ServerApp {
   import crudex.model.instances._
   import crudex.persist.stm.ThingStm.instances._
 
-  val thingService = EditableEntityHandler[ThingId, Thing, StmPersistThingEff]("things")
+  val thingService = CrudHandler[ThingId, Thing, StmThingDbEff]("things")
 
   val services = ElmPageHandler.elmPageService orElse
                  StaticHandler.staticService orElse
                  UserHandler.userService orElse
-                 thingService.entityService
+                 thingService.crudService
 
   override def server(args: List[String]): Task[Server] = {
     BlazeBuilder

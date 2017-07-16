@@ -16,13 +16,13 @@ object ThingStm {
 
    /* type definitions */
    type ThingStore = StmMap[ThingId, Thing]
-   type StmPersistThingEff[A] = ReaderT[IO, ThingStore, A]
+   type StmThingDbEff[A] = ReaderT[IO, ThingStore, A]
 
    object instances {
      val appConfig = initThingStore
 
-     implicit def stmPersistEffHandler: RunPersistence[StmPersistThingEff] = new RunPersistence[StmPersistThingEff] {
-        override def runPersistEffect[A](a: StmPersistThingEff[A]): A = {
+     implicit def stmAsDbEffect: RunDbEffect[StmThingDbEff] = new RunDbEffect[StmThingDbEff] {
+        override def runDbEffect[A](a: StmThingDbEff[A]): A = {
           val r = for {
             store  <- appConfig
             result <- a.run(store)
@@ -33,17 +33,12 @@ object ThingStm {
         //^ better than: a.run(appConfig.unsafePerformIO).unsafePerformIO
      }
 
-     implicit def editableStmEntity: EditableEntity[ThingId, Thing, StmPersistThingEff] = new EditableEntity[ThingId, Thing, StmPersistThingEff]{
-       override def retrieveAll: StmPersistThingEff[IList[Entity[ThingId, Thing]]] = getThings
-
-       override def retrieveRecord(id: ThingId)(implicit E: Monad[StmPersistThingEff]): StmPersistThingEff[Option[Thing]] = getThing(id)
-
-       override def create: (Thing) => StmPersistThingEff[Entity[ThingId, Thing]] =  createThing
-
-       override def update: (ThingId) => (Thing) => StmPersistThingEff[Thing] =  modifyThing
-
-       override def delete: (ThingId) => StmPersistThingEff[Unit] = deleteThing
-
+     implicit def thingCrudDB: CrudDb[ThingId, Thing, StmThingDbEff] = new CrudDb[ThingId, Thing, StmThingDbEff]{
+       override def retrieveAll: StmThingDbEff[IList[Entity[ThingId, Thing]]] = getThings
+       override def retrieveRecord(id: ThingId)(implicit E: Monad[StmThingDbEff]): StmThingDbEff[Option[Thing]] = getThing(id)
+       override def create: (Thing) => StmThingDbEff[Entity[ThingId, Thing]] =  createThing
+       override def update: (ThingId) => (Thing) => StmThingDbEff[Thing] =  modifyThing
+       override def delete: (ThingId) => StmThingDbEff[Unit] = deleteThing
      }
    }
 
@@ -60,20 +55,19 @@ object ThingStm {
 
    private def pairToEntityIso: Tuple2[ThingId, Thing] => ThingEntity = (pair: Tuple2[ThingId, Thing]) => new Entity(pair._1, pair._2)
 
-   def getThings: StmPersistThingEff[IList[ThingEntity]] =
+   def getThings: StmThingDbEff[IList[ThingEntity]] =
      ReaderT { store: ThingStore =>
        atomically(
          store.toList.map((list) => list.map(pairToEntityIso))
        )
      }
 
-   def getThing:  ThingId => StmPersistThingEff[Option[Thing]] = thingId =>
+   def getThing:  ThingId => StmThingDbEff[Option[Thing]] = thingId =>
      ReaderT { store: ThingStore =>
        atomically(store.get(thingId))
      }
 
-  //  postThingH
-   def createThing :  Thing => StmPersistThingEff[ThingEntity] = thing =>
+   def createThing :  Thing => StmThingDbEff[ThingEntity] = thing =>
      ReaderT { store: ThingStore =>
        atomically(
          for {
@@ -84,8 +78,7 @@ object ThingStm {
        )
      }
 
-
-   def modifyThing:  ThingId => Thing => StmPersistThingEff[Thing] = thingId => thing =>
+   def modifyThing:  ThingId => Thing => StmThingDbEff[Thing] = thingId => thing =>
      ReaderT { store: ThingStore =>
        atomically(
          for {
@@ -94,11 +87,10 @@ object ThingStm {
        )
      }
 
-   def deleteThing: ThingId =>  StmPersistThingEff[Unit] = thingId =>
+   def deleteThing: ThingId =>  StmThingDbEff[Unit] = thingId =>
      ReaderT { store: ThingStore =>
        atomically(
          store.delete(thingId)
        )
      }
-
 }

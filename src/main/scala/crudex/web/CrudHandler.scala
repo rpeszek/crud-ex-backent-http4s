@@ -15,18 +15,18 @@ import io.circe.Encoder
 /**
   * //TODO needs evConvertKey
   */
-case class EditableEntityHandler[K,D,E[_]](uri: String)(implicit evM: Monad[E],
-                                                        evRunPersist: RunPersistence[E],
-                                                        evConvertKey: IntId[K],
-                                                        evPersist: EditableEntity[K,D,E],
-                                                        evJsonK: Encoder[K],
-                                                        evJsonD: Encoder[D],
-                                                        evDecodeJsonD: Decoder[D]) {
+case class CrudHandler[K,D,E[_]](uri: String)(implicit evM: Monad[E],
+                                              evRunPersist: RunDbEffect[E],
+                                              evConvertKey: IntId[K],
+                                              evPersist: CrudDb[K,D,E],
+                                              evJsonK: Encoder[K],
+                                              evJsonD: Encoder[D],
+                                              evDecodeJsonD: Decoder[D]) {
 
   import io.circe.generic.auto._  //needed for auto json instance of Entity
   import crudex.model.instances._
 
-  val entityService = HttpService {
+  val crudService = HttpService {
     case GET -> Root / uri / IntVar(thingId) =>
       renderJsonResponseOrNotFound (
         evPersist.retrieveRecord(evConvertKey.fromInt(thingId))

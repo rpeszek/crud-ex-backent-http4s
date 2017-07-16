@@ -7,7 +7,7 @@ import org.http4s.dsl._
 
 import scalaz.concurrent.Task
 
-import crudex.app.Common.RunPersistence
+import crudex.app.Common.RunDbEffect
 
 
 /**
@@ -37,22 +37,22 @@ object Common {
     Ok(a)
   }
 
-  private def renderResponse[A,B,E[_]](a: E[A], toHttpResponse: ToHttpResponse[A,B])(implicit effEv: RunPersistence[E], encoderEv: EntityEncoder[B]): Task[Response]  =
-    toHttpResponse(effEv.runPersistEffect(a))(encoderEv)
+  private def renderResponse[A,B,E[_]](a: E[A], toHttpResponse: ToHttpResponse[A,B])(implicit effEv: RunDbEffect[E], encoderEv: EntityEncoder[B]): Task[Response]  =
+    toHttpResponse(effEv.runDbEffect(a))(encoderEv)
 
-  def renderJsonResponse[A,E[_]](a: E[A])(implicit E: RunPersistence[E], A: Encoder[A]): Task[Response] = {
+  def renderJsonResponse[A,E[_]](a: E[A])(implicit E: RunDbEffect[E], A: Encoder[A]): Task[Response] = {
     //brings evidence of EntityEncoder[A] based on Json (A: Encoder[A]) encoding evidence
     implicit val ev: EntityEncoder[A] = jsonEncoderOf[A]
     renderResponse(a, defaultToResponse[A])
   }
 
-  def renderJsonResponseOrNotFound[A,E[_]](a: E[Option[A]])(implicit E: RunPersistence[E], A: Encoder[A]): Task[Response] = {
+  def renderJsonResponseOrNotFound[A,E[_]](a: E[Option[A]])(implicit E: RunDbEffect[E], A: Encoder[A]): Task[Response] = {
     //brings evidence of EntityEncoder[A] based on Json (A: Encoder[A]) encoding evidence
     implicit val ev: EntityEncoder[A] = jsonEncoderOf[A]
     renderResponse(a, optionToResponse[A])
   }
 
-  def renderHtmlReponse[A,E[_]](a: E[A])(implicit E: RunPersistence[E], A: EntityEncoder[A]): Task[Response] =
+  def renderHtmlReponse[A,E[_]](a: E[A])(implicit E: RunDbEffect[E], A: EntityEncoder[A]): Task[Response] =
     renderResponse(a, defaultToResponse[A])
 
 

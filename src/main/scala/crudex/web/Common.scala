@@ -1,28 +1,18 @@
-package crudex.utils
+package crudex.web
 
-import crudex.model.UserId
-import org.http4s._
-import org.http4s.dsl._
-import org.http4s.MediaType._
-import org.http4s.headers._
-
-import org.http4s.circe._
 import io.circe._
-import io.circe.syntax._
+import org.http4s._
+import org.http4s.circe._
+import org.http4s.dsl._
 
-import scalaz._
-import Scalaz._
 import scalaz.concurrent.Task
-import scalaz.effect.IO
+
+import crudex.app.Common.RunPersistence
 
 
 /**
   */
 object Common {
-  /*
-  Common type, defines application effects used to persist/retrieve CRUD data
-   */
-  type Handler[A] = IO[A]
 
   /*
    Helper type defines common logic for Http response based on the rendered type.
@@ -47,22 +37,22 @@ object Common {
     Ok(a)
   }
 
-  private def renderResponse[A,B](a: Handler[A], toHttpResponse: ToHttpResponse[A,B])(implicit encoderEv: EntityEncoder[B]): Task[Response]  =
-    toHttpResponse(a.unsafePerformIO)(encoderEv)
+  private def renderResponse[A,B,E[_]](a: E[A], toHttpResponse: ToHttpResponse[A,B])(implicit effEv: RunPersistence[E], encoderEv: EntityEncoder[B]): Task[Response]  =
+    toHttpResponse(effEv.runPersistEffect(a))(encoderEv)
 
-  def renderJsonResponse[A](a: Handler[A])(implicit A: Encoder[A]): Task[Response] = {
+  def renderJsonResponse[A,E[_]](a: E[A])(implicit E: RunPersistence[E], A: Encoder[A]): Task[Response] = {
     //brings evidence of EntityEncoder[A] based on Json (A: Encoder[A]) encoding evidence
     implicit val ev: EntityEncoder[A] = jsonEncoderOf[A]
     renderResponse(a, defaultToResponse[A])
   }
 
-  def renderJsonResponseOrNotFound[A](a: Handler[Option[A]])(implicit A: Encoder[A]): Task[Response] = {
+  def renderJsonResponseOrNotFound[A,E[_]](a: E[Option[A]])(implicit E: RunPersistence[E], A: Encoder[A]): Task[Response] = {
     //brings evidence of EntityEncoder[A] based on Json (A: Encoder[A]) encoding evidence
     implicit val ev: EntityEncoder[A] = jsonEncoderOf[A]
     renderResponse(a, optionToResponse[A])
   }
 
-  def renderHtmlReponse[A](a: Handler[A])(implicit A: EntityEncoder[A]): Task[Response] =
+  def renderHtmlReponse[A,E[_]](a: E[A])(implicit E: RunPersistence[E], A: EntityEncoder[A]): Task[Response] =
     renderResponse(a, defaultToResponse[A])
 
 

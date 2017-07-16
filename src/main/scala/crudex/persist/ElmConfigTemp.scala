@@ -1,11 +1,10 @@
-package crudex.stm
+package crudex.persist
 
 import crudex.model.{ElmConfig, ElmLoggerConfig}
-import crudex.utils.Common.Handler
+import crudex.persist.Common.DefaultPersistEff
 
 import scalaz._
 import Scalaz._
-import scalaz.effect.IO
 
 /**
   * Temp because it was not STM-ed yet and because everything is untyped
@@ -13,6 +12,6 @@ import scalaz.effect.IO
 object ElmConfigTemp {
   val tempElmConfig : ElmConfig = ElmConfig("App.Main", ElmLoggerConfig("Std", List("LApp", "LOut", "LMsg")), "")
 
-  def getElmConfig: Handler[ElmConfig] =
-    tempElmConfig.pure[IO]
+  def getElmConfig: DefaultPersistEff[ElmConfig] =
+    tempElmConfig.pure[DefaultPersistEff]
 }

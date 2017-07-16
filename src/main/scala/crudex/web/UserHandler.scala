@@ -4,8 +4,8 @@ import scalaz._, Scalaz._
 import org.http4s._, org.http4s.dsl._
 import org.http4s.circe._
 
-import crudex.utils.Common._
-import crudex.stm.UserTemp._
+import Common._
+import crudex.persist.UserTemp._
 import crudex.model._
 
 /**
@@ -14,6 +14,7 @@ import crudex.model._
 object UserHandler {
   import io.circe.generic.auto._
   import crudex.model.instances._
+  import crudex.app.Common.instances._
 
   val userService = HttpService {
     case GET -> Root / "users" =>

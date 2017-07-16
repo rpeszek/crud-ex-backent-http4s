@@ -4,11 +4,11 @@ import io.circe.Encoder
 
 import scalaz._
 import Scalaz._
+import crudex.app.Common.{Entity, IntId}
 
 /**
   */
 object model {
-  case class Entity[K,V](id: K, entity: V)
 
   case class ThingId(id:Int)
   case class Thing(name:String, description:String, userId: Option[UserId])
@@ -30,6 +30,9 @@ object model {
     import io.circe._
     import io.circe.literal._
 
+    implicit val thidIdFromInt: IntId[ThingId] = new IntId[ThingId] {
+      override def fromInt: (Int) => ThingId = i => ThingId(i)
+    }
     implicit val thingIdEncoder: Encoder[ThingId] =
       Encoder.encodeLong.contramap[ThingId](_.id)
     implicit val userIdEncoder: Encoder[UserId] =

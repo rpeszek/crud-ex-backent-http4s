@@ -1,11 +1,11 @@
-package crudex.stm
+package crudex.persist
 
-import crudex.model.{Entity, UserEntity, UserId, User}
-import crudex.utils.Common.Handler
+import crudex.app.Common.Entity
+import crudex.model.{User, UserEntity, UserId}
+import crudex.persist.Common.DefaultPersistEff
 
 import scalaz._
 import Scalaz._
-import scalaz.effect.IO
 
 /**
   * Temp because it was not STM-ed yet
@@ -17,6 +17,6 @@ object UserTemp {
      Entity(UserId(2), User("Alan", "Turing"))
   )
 
-  def getUsers: Handler[IList[UserEntity]] =
-     tempUsers.pure[IO]
+  def getUsers: DefaultPersistEff[IList[UserEntity]] =
+     tempUsers.pure[DefaultPersistEff]
 }

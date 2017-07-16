@@ -3,14 +3,16 @@ package crudex.web
 import scalaz._, Scalaz._
 import org.http4s._, org.http4s.dsl._
 
-import crudex.utils.Common._
+import Common._
 import crudex.model._
-import crudex.stm.ElmConfigTemp._
+import crudex.persist.ElmConfigTemp._
 
 /**
   * serves elm app
    */
 object ElmPageHandler {
+  import crudex.app.Common.instances._
+  import crudex.utils.ScalatagsInstances._
   import crudex.view.ElmApp.instances._
 
   val elmPageService = HttpService {

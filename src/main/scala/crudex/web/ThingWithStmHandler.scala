@@ -12,6 +12,7 @@ import crudex.model._
 //import org.http4s.server.syntax._
 
 /**
+  * For demonstraction only, replaced by more generic CrudHandler
   * Hardcodes Thing as entity and STM as DB effect
   * See CrudHandler for more polymorphic take on this.
   */
@@ -24,29 +25,39 @@ object ThingWithStmHandler {
   val thingService = HttpService {
     case GET -> Root / "things" / IntVar(thingId) =>
       renderJsonResponseOrNotFound (
+        runAtomically(
          getThing(ThingId(thingId))
+        )
       )
 
     case GET -> Root / "things" =>
       renderJsonResponse(
-        getThings
+        runAtomically(
+          getThings
+        )
       )
 
     case req @ POST -> Root / "things" =>
       for {
         thing <- req.as(jsonOf[Thing])
-        res  <- renderJsonResponse(createThing(thing))
+        res  <- renderJsonResponse(
+          runAtomically(
+            createThing(thing)
+          )
+        )
       } yield (res)
 
     case req @ PUT -> Root / "things"/ IntVar(thingId) =>
       for {
         thing <- req.as(jsonOf[Thing])
-        res  <- renderJsonResponse(modifyThing(ThingId(thingId))(thing))
+        res  <- renderJsonResponseOrNotFound(runAtomically(modifyThing(ThingId(thingId))(thing)))
       } yield (res)
 
     case DELETE -> Root / "things" / IntVar(thingId) =>
       renderJsonResponse(
-        deleteThing(ThingId(thingId))
+        runAtomically(
+          deleteThing(ThingId(thingId))
+        )
       )
 
   }

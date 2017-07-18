@@ -10,6 +10,9 @@ import org.http4s.server.blaze._
 import org.http4s.server.syntax._
 
 
+/*
+ * For demonstraction only, replaced by more generic MainStm
+ */
 object MainSimpleStm extends ServerApp {
 
   val services = ThingWithStmHandler.thingService orElse

@@ -6,6 +6,7 @@ scalaVersion := "2.12.2"
 
 val http4sVersion = "0.15.13a"
 val circeVersion = "0.6.1"
+val doobieVersion = "0.4.1"
 
 resolvers += Resolver.sonatypeRepo("snapshots")
 
@@ -21,5 +22,8 @@ libraryDependencies ++= Seq(
   "io.circe" %% "circe-literal" % circeVersion,
 
   "org.scala-stm" %% "scala-stm" % "0.8",
-  "com.lihaoyi" %% "scalatags" % "0.6.5"
+  "com.lihaoyi" %% "scalatags" % "0.6.5",
+
+  "org.tpolecat" %% "doobie-core"  % doobieVersion,
+  "org.tpolecat" %% "doobie-h2" % doobieVersion
 )

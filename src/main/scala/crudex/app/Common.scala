@@ -21,7 +21,7 @@ object Common {
   }
 
   /* Currently app used retrieveAll and retrieveRecord only */
-  trait ReadDb[K,D,E[_]] {
+  trait PersistRead[K,D,E[_]] {
      def retrieveAll: E[IList[Entity[K,D]]]
 
      def retrieveEntity(id: K)(implicit E:Monad[E]): E[Option[Entity[K,D]]] =
@@ -31,9 +31,9 @@ object Common {
         E.map(retrieveEntity(id))((maybeEntity: Option[Entity[K,D]]) => maybeEntity.map(_.entity))
   }
 
-  trait CrudDb[K,D, E[_]] extends ReadDb[K,D,E] {
+  trait PersistCrud[K,D, E[_]] extends PersistRead[K,D,E] {
      def create: D => E[Entity[K,D]]
-     def update: K => D => E[D]  //TODO should this be E[Option[V]], currently this acts as create if not found
+     def update: K => D => E[Option[D]]  //E[Option[V]] to reflect use of invalid K - key
      def delete: K => E[Unit]
   }
 

@@ -18,7 +18,7 @@ import io.circe.Encoder
 case class CrudHandler[K,D,E[_]](uri: String)(implicit evM: Monad[E],
                                               evRunPersist: RunDbEffect[E],
                                               evConvertKey: IntId[K],
-                                              evPersist: CrudDb[K,D,E],
+                                              evPersist: PersistCrud[K,D,E],
                                               evJsonK: Encoder[K],
                                               evJsonD: Encoder[D],
                                               evDecodeJsonD: Decoder[D]) {
@@ -46,7 +46,7 @@ case class CrudHandler[K,D,E[_]](uri: String)(implicit evM: Monad[E],
     case req @ PUT -> Root / uri / IntVar(thingId) =>
       for {
         thing <- req.as(jsonOf[D])
-        res  <- renderJsonResponse(evPersist.update(evConvertKey.fromInt(thingId))(thing))
+        res  <- renderJsonResponseOrNotFound(evPersist.update(evConvertKey.fromInt(thingId))(thing))
       } yield (res)
 
     case DELETE -> Root / uri / IntVar(thingId) =>

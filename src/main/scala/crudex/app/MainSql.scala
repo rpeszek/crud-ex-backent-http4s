@@ -12,7 +12,7 @@ import crudex.web._
 
 
 /*
- * Uses 'generic' EditableEntityHandler to provide JSON endpoints for Entity
+ * Work in progress
  */
 object MainSql extends ServerApp {
   import crudex.persist.sql.Common.instances._

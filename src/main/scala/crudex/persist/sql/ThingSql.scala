@@ -13,7 +13,7 @@ import crudex.persist.sql.Common._
 import scala.reflect.runtime.universe.TypeTag
 
 /**
-  *
+  * Work in progress
   */
 object ThingSql {
 

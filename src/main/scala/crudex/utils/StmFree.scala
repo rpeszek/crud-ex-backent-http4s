@@ -6,7 +6,9 @@ package crudex.utils
   */
 import scalaz.effect.IO
 import scalaz.effect.IO._
-import scalaz._, Scalaz._
+import scalaz._
+import Scalaz._
+import scalaz.concurrent.Task
 
 /**
   * Pure functional STM using a free monad to hide the underlying Scala STM. Refs and transaction
@@ -83,7 +85,11 @@ object StmFree {
     liftF(Delay(() => atomic(interpF(a)).orAtomic(interpF(b))))
   def atomically[A](a: STM[A]): IO[A] =
     atomic(interpF(a)).pure[IO] //just wrapping in IO does not work, TVar looses its value
+  def atomicallyAsTask[A](a: STM[A]): Task[A] =
+    atomic(interpF(a)).pure[Task]
+
   def newTVarIO[A](a: A): IO[TVar[A]] = atomically(newTVar(a))
+  def newTVarTask[A](a: A): Task[TVar[A]] = atomicallyAsTask(newTVar(a))
 
   //endregion
 

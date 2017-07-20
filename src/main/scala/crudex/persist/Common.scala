@@ -1,17 +1,12 @@
 package crudex.persist
 
 
-import scalaz.effect.IO
+import scalaz.concurrent.Task
 
 /**
   */
 object Common {
-   type DefaultPersistEff[A] = IO[A]
+   type DefaultPersistEff[A] = Task[A]
 
-//  IO instance already implemented in crudex.web.Commmon, change this if default changes
-//   object instances {
-//     implicit def defaultPersistEffHandler: PersistHandler[DefaultPersistEff] = new PersistHandler[DefaultPersistEff] {
-//       override def runPersistEffect[A](a: DefaultPersistEff[A]): A = a.unsafePerformIO
-//     }
-//   }
+   //DbEffectToTask instance already implemented for Task in crudex.app.Common.instances
 }

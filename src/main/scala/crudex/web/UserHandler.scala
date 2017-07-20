@@ -9,7 +9,6 @@ import crudex.persist.UserTemp._
 import crudex.model._
 
 /**
-  * Created by rpeszek on 7/12/17.
   */
 object UserHandler {
   import io.circe.generic.auto._

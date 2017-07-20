@@ -4,11 +4,12 @@ import scalaz.effect.IO
 import scalaz._
 import Scalaz._
 import scalaz.effect.IO
-
 import crudex.utils.StmFree._
 import crudex.utils.StmFree.StmContainers._
 import crudex.model._
 import crudex.app.Common._
+
+import scalaz.concurrent.Task
 
 /**
   */
@@ -20,13 +21,13 @@ object ThingStm {
     results in outer effect IOLite (here ThingAtomicStmEff).
   */
    type ThingStore = StmMap[ThingId, Thing]
-   type ThingAtomicStmEff[A] = ReaderT[IO, ThingStore, A]
+   type ThingAtomicStmEff[A] = ReaderT[Task, ThingStore, A]
    type ThingStmEff[A] = ReaderT[STM, ThingStore, A]
 
 
    /* methods */
-   def initThingStore: IO[ThingStore] =
-         atomically(
+   def initThingStore: Task[ThingStore] =
+         atomicallyAsTask(
            for {
              store <- newMap[ThingId, Thing]
              _     <- store.insert(ThingId(0), Thing("testName1", "testDesc1", None))
@@ -39,7 +40,7 @@ object ThingStm {
 
    def runAtomically[A]: ThingStmEff[A] => ThingAtomicStmEff[A] = a =>
      ReaderT { store: ThingStore =>
-       atomically(
+       atomicallyAsTask(
          a.run(store)
        )
      }
@@ -84,19 +85,15 @@ object ThingStm {
   object instances {
     val appConfig = initThingStore
 
-    implicit def stmAsDbEffect: RunDbEffect[ThingAtomicStmEff] = new RunDbEffect[ThingAtomicStmEff] {
-      override def runDbEffect[A](a: ThingAtomicStmEff[A]): A = {
-        val r = for {
+    implicit def evStmToTaskNt: ThingAtomicStmEff ~> Task = new (ThingAtomicStmEff ~> Task) {
+      def apply[A](a: ThingAtomicStmEff[A]): Task[A] =
+        for {
           store  <- appConfig
           result <- a.run(store)
         } yield (result)
-
-        r.unsafePerformIO
-      }
-      //^ better than: a.run(appConfig.unsafePerformIO).unsafePerformIO
     }
 
-    implicit def thingCrudDB: PersistCrud[ThingId, Thing, ThingAtomicStmEff] = new PersistCrud[ThingId, Thing, ThingAtomicStmEff]{
+    implicit def evThingCrudWithStm: PersistCrud[ThingId, Thing, ThingAtomicStmEff] = new PersistCrud[ThingId, Thing, ThingAtomicStmEff]{
       override def retrieveAll: ThingAtomicStmEff[IList[Entity[ThingId, Thing]]] = runAtomically(getThings)
       override def retrieveRecord(id: ThingId)(implicit E: Monad[ThingAtomicStmEff]): ThingAtomicStmEff[Option[Thing]] = runAtomically(getThing(id))
       override def create: (Thing) => ThingAtomicStmEff[Entity[ThingId, Thing]] = thing => runAtomically(createThing(thing))

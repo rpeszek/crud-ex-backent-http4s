@@ -2,15 +2,14 @@ package crudex.app
 
 import scalaz._
 import Scalaz._
+import scalaz.concurrent.Task
 import scalaz.effect.IO
 /**
   *
   */
 object Common {
-   //TODO, currently not used
-  sealed trait AppConfig
 
-  //region Common Type classes abstract over CRUD entity and persistence effect used
+  //region Common Type classes abstract over CRUD entity and persistence effects
 
   /*  Legend: K=key/id, D=record under that id, E=effect */
 
@@ -38,20 +37,20 @@ object Common {
   }
 
   /*
-    This abstraction allows handling arbitrary persistence effects.
-    Treats persistent effect as T-Algebra
+    In addition, natural transformation (~>) defined in scalaz is used to convert DbEffect types to Tasks
    */
-  //TODO This runs effects early, think how to create http4s services so that the effect can be resolved in the Main class
-  trait RunDbEffect[E[_]] {
-    def runDbEffect[A](a: E[A]): A
-  }
 
   //endregion
 
+
   object instances {
-    implicit def ioAsDbEffect: RunDbEffect[IO] = new RunDbEffect[IO] {
-      override def runDbEffect[A](a: IO[A]): A = a.unsafePerformIO
+
+    //Natural Transformation is used to convert DbEffect types to Tasks
+    //this app uses Task itself as DbEffect for Sql effects
+    implicit def evTaskIsTask: Task ~> Task = new (Task ~> Task) {
+      def apply[A](fa: Task[A]): Task[A] = fa
     }
+    //IO no longer used as Db Effect no need to prove correspondence between IO and Task
   }
 
 }

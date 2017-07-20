@@ -30,16 +30,16 @@ object model {
     import io.circe._
     import io.circe.literal._
 
-    implicit val thidIdFromInt: IntId[ThingId] = new IntId[ThingId] {
+    implicit val evThingIdFromInt: IntId[ThingId] = new IntId[ThingId] {
       override def fromInt: (Int) => ThingId = i => ThingId(i)
     }
-    implicit val thingIdEncoder: Encoder[ThingId] =
+    implicit val evThingIdEncoder: Encoder[ThingId] =
       Encoder.encodeLong.contramap[ThingId](_.id)
-    implicit val userIdEncoder: Encoder[UserId] =
+    implicit val evUserIdEncoder: Encoder[UserId] =
       Encoder.encodeLong.contramap[UserId](_.id)
 
     //explicit use of (ev) resolves implicit ambiguity
-    implicit def thinIListEncoder[A](implicit ev: Encoder[A]): Encoder[IList[A]] =
+    implicit def evIListEncoder[A](implicit ev: Encoder[A]): Encoder[IList[A]] =
       Encoder.encodeList(ev).contramap[IList[A]](_.toList)
 
   }

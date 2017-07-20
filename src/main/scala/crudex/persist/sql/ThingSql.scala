@@ -34,9 +34,9 @@ object ThingSql {
 
   def createThing :  Thing => ConnectionIO[ThingEntity] = thing =>
     for {
-      _ <- sql"INSERT INTO THING VALUES (${thing.name}, ${thing.description}, ${thing.userId})".update.run
-      id <- sql"SELECT SCOPE_IDENTITY()".query[Int].unique
-      _ = println("got " + id)
+      id <- sql"SELECT ID_SEQ.nextval".query[Int].unique
+      _ <-  sql"INSERT INTO THING(id, name,description,user_id) VALUES (${id}, ${thing.name}, ${thing.description}, ${thing.userId})".update.run
+      //TODO fail if not inserted
       //TODO re-retrieving thing would be better
     } yield(Entity(ThingId(id), thing))
 
@@ -57,7 +57,7 @@ object ThingSql {
 
   object instances {
 
-    implicit def thingCrudDB: PersistCrud[ThingId, Thing, TransactionalSqlEff] = new PersistCrud[ThingId, Thing, TransactionalSqlEff]{
+    implicit def evThingCrudWithSql: PersistCrud[ThingId, Thing, TransactionalSqlEff] = new PersistCrud[ThingId, Thing, TransactionalSqlEff]{
       override def retrieveAll: TransactionalSqlEff[IList[Entity[ThingId, Thing]]] = runTransaction(getThings)
       override def retrieveRecord(id: ThingId)(implicit E: Monad[TransactionalSqlEff]): TransactionalSqlEff[Option[Thing]] = runTransaction(getThing(id))
       override def create: (Thing) => TransactionalSqlEff[Entity[ThingId, Thing]] = thing => runTransaction(createThing(thing))

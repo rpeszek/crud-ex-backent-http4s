@@ -1,6 +1,7 @@
 package crudex.web
 
 import scalaz._, Scalaz._
+import scalaz.concurrent.Task
 import org.http4s._, org.http4s.dsl._
 import org.http4s.circe._
 
@@ -16,7 +17,7 @@ import io.circe.Encoder
   * Generic CRUD handler that works across entities and is agnostic to which DB monadic effect is used
   */
 case class CrudHandler[K,D,E[_]](uri: String)(implicit evM: Monad[E],
-                                              evRunPersist: RunDbEffect[E],
+                                              evPersitAsTask: E ~> Task,
                                               evConvertKey: IntId[K],
                                               evPersist: PersistCrud[K,D,E],
                                               evJsonK: Encoder[K],

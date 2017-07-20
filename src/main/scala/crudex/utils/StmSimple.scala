@@ -4,8 +4,11 @@ import scalaz.effect.IO
 import scalaz._
 import Scalaz._
 import scala.concurrent.stm.{retry => stmRetry, _}
+import scalaz.concurrent.Task
 
 /*
+  Currently not used, replaced with FreeStm
+
   Adjusted from https://gist.github.com/tpolecat/5672105
   StmFree is more developed and semantically more correct.
   This version implements only a limited set of STM operations
@@ -24,12 +27,22 @@ object StmSimple {
   def newTVarIO[A](a: A): IO[TVar[A]] =
     IO(Ref(a))
 
+  def newTVarTask[A](a: A): Task[TVar[A]] =
+    Task(Ref(a))
+
   def atomically[A](a: STM[A]): IO[A] = {
     //atomic(a.run)
     val unwrapped = atomic { implicit txn =>
        a.run(txn).unsafePerformIO
     }
     IO(unwrapped)
+  }
+
+  def atomicallyAsTask[A](a: STM[A]): Task[A] = {
+    val unwrapped = atomic { implicit txn =>
+      a.run(txn).unsafePerformIO
+    }
+    Task(unwrapped)
   }
 
   /*

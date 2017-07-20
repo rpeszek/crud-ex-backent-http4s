@@ -15,18 +15,17 @@ import crudex.web._
  * Work in progress
  */
 object MainSql extends ServerApp {
-  import crudex.persist.sql.Common.instances._
+  import crudex.app.Common.instances._
+  import io.circe.generic.auto._
+  import crudex.model.instances._
 
   /*
   Initialize H2 DB with empty table.
   */
-  val _ = sqlAsDbEffect.runDbEffect(createTables)
+  val _ = createTables.unsafePerformSync
 
   object thing {
     /* Imports define type class implementations needed for EditableEntityHandler */
-    import io.circe.generic.auto._
-    import crudex.model.instances._
-    import crudex.persist.sql.Common.instances._
     import crudex.persist.sql.ThingSql.instances._
 
     val handler = CrudHandler[ThingId, Thing, TransactionalSqlEff]("things")
@@ -34,8 +33,8 @@ object MainSql extends ServerApp {
 
   val services = ElmPageHandler.elmPageService orElse
                  StaticHandler.staticService orElse
-                 UserHandler.userService //orElse
-                 //thingService.crudService
+                 UserHandler.userService orElse
+                 thing.handler.crudService
 
   override def server(args: List[String]): Task[Server] = {
     BlazeBuilder

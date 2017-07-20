@@ -1,5 +1,6 @@
 package crudex.web
 
+import scalaz._
 import io.circe._
 import org.http4s._
 import org.http4s.circe._
@@ -7,10 +8,9 @@ import org.http4s.dsl._
 
 import scalaz.concurrent.Task
 
-import crudex.app.Common.RunDbEffect
-
 
 /**
+  * Defines common methods used by Handler objects
   */
 object Common {
 
@@ -37,22 +37,33 @@ object Common {
     Ok(a)
   }
 
-  private def renderResponse[A,B,E[_]](a: E[A], toHttpResponse: ToHttpResponse[A,B])(implicit effEv: RunDbEffect[E], encoderEv: EntityEncoder[B]): Task[Response]  =
-    toHttpResponse(effEv.runDbEffect(a))(encoderEv)
 
-  def renderJsonResponse[A,E[_]](a: E[A])(implicit E: RunDbEffect[E], A: Encoder[A]): Task[Response] = {
+  private def renderResponse[A,B,E[_]](a: E[A], toHttpResponse: ToHttpResponse[A,B])(implicit evNt: E ~> Task, encoderEv: EntityEncoder[B]): Task[Response]  =
+    for {
+      dbRes <- evNt.apply(a)
+      view  <- toHttpResponse(dbRes)(encoderEv)
+    }yield(view)
+
+  /*
+  Public methods used by handler objects
+
+  Legend: E - effect type
+          A - type to be rendered as Json or Html
+    evNt: E ~> Task natural transformation is used to convert between Db Effect E and Task
+   */
+  def renderJsonResponse[A,E[_]](a: E[A])(implicit  evNt: E ~> Task, A: Encoder[A]): Task[Response] = {
     //brings evidence of EntityEncoder[A] based on Json (A: Encoder[A]) encoding evidence
     implicit val ev: EntityEncoder[A] = jsonEncoderOf[A]
     renderResponse(a, defaultToResponse[A])
   }
 
-  def renderJsonResponseOrNotFound[A,E[_]](a: E[Option[A]])(implicit E: RunDbEffect[E], A: Encoder[A]): Task[Response] = {
+  def renderJsonResponseOrNotFound[A,E[_]](a: E[Option[A]])(implicit evNt: E ~> Task, A: Encoder[A]): Task[Response] = {
     //brings evidence of EntityEncoder[A] based on Json (A: Encoder[A]) encoding evidence
     implicit val ev: EntityEncoder[A] = jsonEncoderOf[A]
     renderResponse(a, optionToResponse[A])
   }
 
-  def renderHtmlReponse[A,E[_]](a: E[A])(implicit E: RunDbEffect[E], A: EntityEncoder[A]): Task[Response] =
+  def renderHtmlReponse[A,E[_]](a: E[A])(implicit evNt: E ~> Task, A: EntityEncoder[A]): Task[Response] =
     renderResponse(a, defaultToResponse[A])
 
 

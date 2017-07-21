@@ -1,11 +1,9 @@
 package crudex.persist.stm
 
-import scalaz.effect.IO
 import scalaz._
 import Scalaz._
-import scalaz.effect.IO
-import crudex.utils.StmFree._
-import crudex.utils.StmFree.StmContainers._
+import crudex.utils.StmSimple._
+import crudex.utils.StmSimple.StmContainers._
 import crudex.model._
 import crudex.app.Common._
 
@@ -46,6 +44,11 @@ object ThingStm {
      }
 
 
+  def runAtomicallyWithStore[A]: ThingStore => ThingStmEff[A] => Task[A] = store => a =>
+      runAtomically(a).run(store)
+
+
+
    def getThings: ThingStmEff[IList[ThingEntity]] =
      ReaderT { store: ThingStore => {
          store.toList.map((list) => list.map(pairToEntityIso))
@@ -81,24 +84,4 @@ object ThingStm {
          store.delete(thingId)
      }
 
-
-  object instances {
-    val appConfig = initThingStore
-
-    implicit def evStmToTaskNt: ThingAtomicStmEff ~> Task = new (ThingAtomicStmEff ~> Task) {
-      def apply[A](a: ThingAtomicStmEff[A]): Task[A] =
-        for {
-          store  <- appConfig
-          result <- a.run(store)
-        } yield (result)
-    }
-
-    implicit def evThingCrudWithStm: PersistCrud[ThingId, Thing, ThingAtomicStmEff] = new PersistCrud[ThingId, Thing, ThingAtomicStmEff]{
-      override def retrieveAll: ThingAtomicStmEff[IList[Entity[ThingId, Thing]]] = runAtomically(getThings)
-      override def retrieveRecord(id: ThingId)(implicit E: Monad[ThingAtomicStmEff]): ThingAtomicStmEff[Option[Thing]] = runAtomically(getThing(id))
-      override def create: (Thing) => ThingAtomicStmEff[Entity[ThingId, Thing]] = thing => runAtomically(createThing(thing))
-      override def update: (ThingId) => (Thing) => ThingAtomicStmEff[Option[Thing]] =  thingId => thing => runAtomically(modifyThing(thingId)(thing))
-      override def delete: (ThingId) => ThingAtomicStmEff[Unit] = thingId => runAtomically(deleteThing(thingId))
-    }
-  }
 }

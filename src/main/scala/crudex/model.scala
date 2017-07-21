@@ -4,7 +4,7 @@ import io.circe.Encoder
 
 import scalaz._
 import Scalaz._
-import crudex.app.Common.{Entity, IntId}
+import crudex.app.Common.{Entity}
 
 /**
   */
@@ -30,9 +30,6 @@ object model {
     import io.circe._
     import io.circe.literal._
 
-    implicit val evThingIdFromInt: IntId[ThingId] = new IntId[ThingId] {
-      override def fromInt: (Int) => ThingId = i => ThingId(i)
-    }
     implicit val evThingIdEncoder: Encoder[ThingId] =
       Encoder.encodeLong.contramap[ThingId](_.id)
     implicit val evUserIdEncoder: Encoder[UserId] =

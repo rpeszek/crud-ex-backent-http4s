@@ -11,15 +11,16 @@ import crudex.persist.ElmConfigTemp._
   * serves elm app
    */
 object ElmPageHandler {
-  import crudex.app.Common.instances._
-  import crudex.utils.ScalatagsInstances._
+  //import crudex.utils.ScalatagsInstances._
   import crudex.view.ElmApp.instances._
 
   val elmPageService = HttpService {
     case GET -> Root / "elm"  =>
-      renderHtmlReponse (
-        getElmConfig
-      )
+        for {
+           elm <- getElmConfig
+           res <- Ok(elm)
+        } yield(res)
+
   }
 
 }

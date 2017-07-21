@@ -21,16 +21,18 @@ object ThingSql {
   //implicit def IListMeta[A: TypeTag](implicit ev: Meta[List[A]]): Meta[IList[A]] =
   //  ev.nxmap[IList[A]](IList.fromList, _.toList)
 
-  def getThings: ConnectionIO[IList[ThingEntity]] = {
+  def getThingsSql: Query0[ThingEntity] =
     sql"""
           SELECT id, name, description, user_id
           FROM THING
-      """.query[ThingEntity].list.map(IList.fromList) /*.query[IList[ThingEntity]]*/
+      """.query[ThingEntity]
+  def getThings: ConnectionIO[IList[ThingEntity]] =
+     getThingsSql.list.map(IList.fromList)
 
-  }
 
+  def getThingSql (thingId: ThingId): Query0[Thing] =  sql"SELECT name, description, user_id FROM THING WHERE id=${thingId.id}".query[Thing]
   def getThing:  ThingId => ConnectionIO[Option[Thing]] = thingId =>
-    sql"SELECT name, description, user_id FROM THING WHERE id=${thingId.id}".query[Thing].option
+      getThingSql(thingId).option
 
   def createThing :  Thing => ConnectionIO[ThingEntity] = thing =>
     for {

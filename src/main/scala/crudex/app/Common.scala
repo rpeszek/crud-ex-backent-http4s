@@ -46,7 +46,7 @@ object Common {
   object instances {
 
     //Natural Transformation is used to convert DbEffect types to Tasks
-    //this app uses Task itself as DbEffect for Sql effects
+    //this app uses Task itself as default Effect for not fully implemented entities such as User
     implicit def evTaskIsTask: Task ~> Task = new (Task ~> Task) {
       def apply[A](fa: Task[A]): Task[A] = fa
     }

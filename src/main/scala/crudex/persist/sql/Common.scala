@@ -9,25 +9,26 @@ import scalaz.concurrent.Task
 
 
 object Common {
-  type TransactionalSqlEff[A] = Task[A]
+  //type TransactionalSqlEff[A] = Task[A]
+  type TransactionalSqlEff[A] = ReaderT[Task, Transactor[Task], A]
 
-  //object instances {
-  //  evTaskToTask is already defined in crudex.app.Common, no need to prove TransactionalSqlEff ~> Task
-  //}
-
-  lazy val xaIO : Task[H2Transactor[Task]] = {
+  lazy val xaTask : Task[Transactor[Task]] = {
     H2Transactor[Task]("jdbc:h2:mem:test;DB_CLOSE_DELAY=-1", "sa", "")
   }
 
-  def runTransaction[A]: ConnectionIO[A] => TransactionalSqlEff[A] = a =>
-    xaIO >>= a.transact[Task]
+  def runTransaction[A]: ConnectionIO[A] => TransactionalSqlEff[A] =  a =>
+    ReaderT { xa: Transactor[Task] =>
+       a.transact[Task](xa)
+    }
 
-  def createTables: TransactionalSqlEff[Unit] =
-    runTransaction(
-      for {
-        _ <- sql"CREATE SEQUENCE ID_SEQ;".update.run
+  def createTables: Task[Unit] =
+    xaTask >>= { xa =>
+      runTransaction(
+        for {
+          _ <- sql"CREATE SEQUENCE ID_SEQ;".update.run
 
-        _ <- sql"""
+          _ <-
+          sql"""
              CREATE TABLE THING (
              id   integer PRIMARY KEY,
              name varchar(255) NOT NULL,
@@ -35,6 +36,17 @@ object Common {
              user_id integer
             );
             """.update.run
-      } yield(())
-    )
+        } yield (())
+      ).run(xa)
+    }
+
+  object instances {
+      implicit def evSqlToTaskNt: TransactionalSqlEff ~> Task = new (TransactionalSqlEff ~> Task) {
+        def apply[A](a: TransactionalSqlEff[A]): Task[A] =
+          for {
+            xa <- xaTask
+            result <- a.run(xa)
+          } yield (result)
+      }
+  }
 }

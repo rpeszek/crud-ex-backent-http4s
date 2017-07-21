@@ -26,6 +26,7 @@ object MainSql extends ServerApp {
 
   object thing {
     /* Imports define type class implementations needed for EditableEntityHandler */
+    import crudex.persist.sql.Common.instances._
     import crudex.persist.sql.ThingSql.instances._
 
     val handler = CrudHandler[ThingId, Thing, TransactionalSqlEff]("things")

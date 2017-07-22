@@ -21,7 +21,7 @@ object ThingSql {
   /*
      Query/Update methods are right next to actual method returning ConnectIO.
      The split betten xyzSql methods returning Query or Update types allows
-     spec2 tests of sql correctness
+     spec2 tests of test.sql correctness
   */
 
   //TODO IList not typechecking directly

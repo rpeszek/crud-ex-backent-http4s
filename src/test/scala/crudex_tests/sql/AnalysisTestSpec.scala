@@ -1,4 +1,4 @@
-package sql
+package crudex_tests.sql
 
 /**
    */
@@ -23,7 +23,7 @@ object AnalysisTestSpec extends Specification with AnalysisSpec {
      H2Transactor[IOLite]("jdbc:h2:mem:test;DB_CLOSE_DELAY=-1", "sa", "").unsafePerformIO
   }
 
-  "check sql definitions for Thing entity" in new dbSetup {
+  "check test.sql definitions for Thing entity" in new dbSetup {
      check(getThingsSql)
      check(getThingSql(ThingId(0)))
      check(nextId)

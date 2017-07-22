@@ -5,7 +5,6 @@ import shapeless._
 import scalaz._
 import Scalaz._
 import doobie.imports._
-
 import crudex.app.Common.{Entity, PersistCrud}
 import crudex.model._
 import crudex.persist.sql.Common._
@@ -48,8 +47,8 @@ object ThingSql {
   def createThing :  Thing => ConnectionIO[ThingEntity] = thing =>
      for {
         id <- nextId.unique
-        _ <-  createThingSql(ThingId(id))(thing).run
-        //TODO fail if not inserted
+        i <-  createThingSql(ThingId(id))(thing).run
+        _ <- failOn(i)(_ != 1)(NotInsertedError())
         //TODO re-retrieving thing would be better
      } yield(Entity(ThingId(id), thing))
 
@@ -66,13 +65,19 @@ object ThingSql {
      } yield(if(i===1) Some(thing) else None)
 
 
+  import doobie.free.connection.CatchableConnectionIO
   def deleteThingSql: ThingId =>  Update0 = thingId =>
     sql"DELETE FROM THING WHERE id=${thingId.id}".update
-  def deleteThing: ThingId =>  ConnectionIO[Unit] = thingId =>
+  def deleteThing: ThingId =>  ConnectionIO[Option[Unit]] = thingId =>
     for {
-       _ <- deleteThingSql(thingId).run
-       //TODO do something if nothing was deleted
-    }yield(())
+       i <- deleteThingSql(thingId).run
+    }yield(if(i===1) Some(()) else None)
+
+  private def failOn[A](a:A)(f: A => Boolean)(e: Exception) : ConnectionIO[Unit]
+    = if(f(a)) CatchableConnectionIO.fail[Unit](e) else ().pure[ConnectionIO]
+
+  case class NotInsertedError()
+       extends Exception("Unexpected error, not inserted")
 
   object instances {
 
@@ -81,7 +86,7 @@ object ThingSql {
       override def retrieveRecord(id: ThingId)(implicit E: Monad[TransactionalSqlEff]): TransactionalSqlEff[Option[Thing]] = runTransaction(getThing(id))
       override def create: (Thing) => TransactionalSqlEff[Entity[ThingId, Thing]] = thing => runTransaction(createThing(thing))
       override def update: (ThingId) => (Thing) => TransactionalSqlEff[Option[Thing]] = thingId => thing => runTransaction(modifyThing(thingId)(thing))
-      override def delete: (ThingId) => TransactionalSqlEff[Unit] = thingId => runTransaction(deleteThing(thingId))
+      override def delete: (ThingId) => TransactionalSqlEff[Option[Unit]] = thingId => runTransaction(deleteThing(thingId))
     }
   }
 

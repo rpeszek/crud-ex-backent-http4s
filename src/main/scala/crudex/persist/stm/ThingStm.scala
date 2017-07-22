@@ -76,9 +76,13 @@ object ThingStm {
       }: STM[Option[Thing]] //scala typechecker needs help
      }
 
-   def deleteThing: ThingId =>  ThingStmEff[Unit] = thingId =>
-     ReaderT { store: ThingStore =>
-         store.delete(thingId)
+   def deleteThing: ThingId =>  ThingStmEff[Option[Unit]] = thingId =>
+     ReaderT { store: ThingStore => {
+       for {
+         existing <- store.get(thingId)
+         _ <-  store.delete(thingId)
+       } yield (if (existing.isDefined) Some(()) else None)
+      } : STM[Option[Unit]] //scala typechecker needs help
      }
 
 
@@ -98,7 +102,7 @@ object ThingStm {
       override def retrieveRecord(id: ThingId)(implicit E: Monad[ThingAtomicStmEff]): ThingAtomicStmEff[Option[Thing]] = runAtomically(getThing(id))
       override def create: (Thing) => ThingAtomicStmEff[Entity[ThingId, Thing]] = thing => runAtomically(createThing(thing))
       override def update: (ThingId) => (Thing) => ThingAtomicStmEff[Option[Thing]] =  thingId => thing => runAtomically(modifyThing(thingId)(thing))
-      override def delete: (ThingId) => ThingAtomicStmEff[Unit] = thingId => runAtomically(deleteThing(thingId))
+      override def delete: (ThingId) => ThingAtomicStmEff[Option[Unit]] = thingId => runAtomically(deleteThing(thingId))
     }
   }
 }

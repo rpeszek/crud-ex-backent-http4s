@@ -33,7 +33,7 @@ object Common {
   trait PersistCrud[K,D, E[_]] extends PersistRead[K,D,E] {
      def create: D => E[Entity[K,D]]
      def update: K => D => E[Option[D]]  //E[Option[V]] to reflect use of invalid K - key
-     def delete: K => E[Unit]
+     def delete: K => E[Option[Unit]]
   }
 
   /*

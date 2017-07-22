@@ -50,8 +50,9 @@ case class CrudHandler[K,D,E[_]](uri: String)(implicit evM: Monad[E],
         res  <- renderJsonResponseOrNotFound(evPersist.update(evConvertKey.fromInt(thingId))(thing))
       } yield (res)
 
+    //TODO delete should return 201 not 200 on success
     case DELETE -> Root / uri / IntVar(thingId) =>
-      renderJsonResponse(
+      renderJsonResponseOrNotFound(
         evPersist.delete(evConvertKey.fromInt(thingId))
       )
   }

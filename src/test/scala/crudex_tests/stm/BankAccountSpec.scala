@@ -2,7 +2,6 @@ package crudex_tests.stm
 
 
 import crudex.utils.StmFree._
-import crudex_tests.stm.BankAccountSpec.banking
 import org.scalacheck.Prop.forAll
 import org.scalacheck.{Arbitrary, Prop, Properties}
 
@@ -23,7 +22,7 @@ object BankAccountSpec extends Properties("BankAccount") {
     def adjustAccount: TVar[BankAccount] => Dollar => STM[Unit]= accTvar => dollars =>
        for {
          acc <- readTVar(accTvar)
-         res <- if(acc.amount + dollars < 0) fail(OverdraftExeption(s"${acc} does not have ${- dollars}")) else putTVar(accTvar, BankAccount(acc.name, acc.amount + dollars))
+         res <- if(acc.amount + dollars < 0) fail(OverdraftExeption(s"${acc} does not have ${- dollars}")) else putTVar(accTvar, acc.copy(amount = acc.amount + dollars))
        } yield (res)
 
     def transferMoney: TVar[BankAccount] => TVar[BankAccount] => Dollar => Task[Unit] = accTvar1 => accTvar2 => dollars =>
@@ -75,16 +74,16 @@ object BankAccountSpec extends Properties("BankAccount") {
 
     Task.gatherUnordered(tasks).run
 
-    val totalAfter = {
+    val totalAfterTransfers = {
        for {
          acc1TVar <- banking.account1
          acc2TVar <- banking.account2
          acc1 <- atomicallyAsTask(readTVar(acc1TVar))
          acc2 <- atomicallyAsTask(readTVar(acc2TVar))
-         _ = println(s"${acc1}, ${acc2}")
+         //_ = println(s"${acc1}, ${acc2}")
        } yield (acc1.amount + acc2.amount)
      }.unsafePerformSync
 
-     totalAfter == 2000
+     totalAfterTransfers == 2000
   }
 }

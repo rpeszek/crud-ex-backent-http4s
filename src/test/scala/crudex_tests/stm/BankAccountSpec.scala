@@ -12,7 +12,6 @@ import scalaz.concurrent.Task
 /**
   */
 object BankAccountSpec extends Properties("BankAccount") {
-  import Prop.forAll
 
   object banking {
     type Dollar = Int
@@ -54,7 +53,7 @@ object BankAccountSpec extends Properties("BankAccount") {
 
   import aribitrary._
 
-  property("stm") = forAll { transfersBundles: List[TransferDollarBundle]  =>
+  property("bank transfers are transactional") = forAll { transfersBundles: List[TransferDollarBundle]  =>
 
      val singleTransferTask: TransferDollarAmount => Task[Unit] =  tamount => {
          for {

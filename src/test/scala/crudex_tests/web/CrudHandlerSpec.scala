@@ -18,8 +18,9 @@ import org.specs2.mutable.Specification
 
 import scalaz.concurrent.Task
 
-/**
-  */
+/*
+  TODO use of unsafe ==
+ */
 object CrudHandlerSpec extends Specification{
   import crudex_tests.web.Common.instances._
   import io.circe.generic.auto._
@@ -71,20 +72,23 @@ object CrudHandlerSpec extends Specification{
        } must returnValueOf(())
     }
 
+    //TODO these need better typing
     "respond 200 to get things" in {
       client.get(reqThingsGET.uri) {
-        case Ok(resp) =>  Task.now("Ok")
-        case _ => Task.now("Bad")
-      } must returnValueOf("Ok")
+        case Ok(resp) =>  Task.now(Some(Ok))
+        case _ => Task.now(None)
+      } must returnValueOf(Some(Ok))
     }
 
     "responds 404 to GET things/invalidID" in {
       client.get(Request(GET, uri("things")/"-1").uri) {
-        case NotFound(_) =>  Task.now("NotFound")
-        case _ => Task.now("Bad")
-      } must returnValueOf("NotFound")
+        case NotFound(_) =>  Task.now(Some(NotFound))
+        case _ => Task.now(None)
+      } must returnValueOf(Some(NotFound))
     }
 
+    //TODO some thinking needed how to better type this
+    // String is convenient here as it also works as payload type
     "responds 404 to MODIFY things/invalidID" in {
       {
         {

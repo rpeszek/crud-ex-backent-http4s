@@ -13,7 +13,7 @@ import crudex.web._
 import crudex.persist.stm.ThingStm._
 
 /*
- * Uses 'generic' EditableEntityHandler to provide JSON endpoints for Entity
+ * Runs STM version of the app
  */
 object MainStm extends ServerApp {
   import io.circe.generic.auto._

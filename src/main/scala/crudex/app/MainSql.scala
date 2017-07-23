@@ -12,7 +12,7 @@ import crudex.web._
 
 
 /*
- * Work in progress
+ * Runs Sql (H2) version of the app
  */
 object MainSql extends ServerApp {
   import crudex.app.Common.instances._

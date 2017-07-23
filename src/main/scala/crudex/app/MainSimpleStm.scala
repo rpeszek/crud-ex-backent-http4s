@@ -11,7 +11,7 @@ import org.http4s.server.syntax._
 
 
 /*
- * For demonstraction only, replaced by more generic MainStm
+ * For demonstration only, replaced by more generic MainStm
  */
 object MainSimpleStm extends ServerApp {
 

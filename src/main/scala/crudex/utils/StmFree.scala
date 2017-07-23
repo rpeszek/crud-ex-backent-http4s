@@ -79,6 +79,7 @@ object StmFree {
   def readTVar[A](r: TVar[A]): STM[A] = liftF(ReadTVar(r))
   def putTVar[A](r: TVar[A], a: A): STM[Unit] = liftF[Op, Unit](WriteTVar(r, a))
   val retry: STM[Unit] = liftF(Retry)
+  def fail[A](e: Exception): STM[A] = process[A]{ t: InTxn => throw e}
 
   //orElse combinator (not tested)
   def orElse[A](a: STM[A], b: STM[A]): STM[A] =

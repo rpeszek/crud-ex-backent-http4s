@@ -33,6 +33,7 @@ libraryDependencies ++= Seq(
 
   "org.specs2" %% "specs2-core" % "3.8.6" % "test",
   "org.tpolecat" %% "doobie-specs2" % doobieVersion % "test",
-  "org.typelevel" %% "scalaz-specs2" % "0.5.0" % "test",
-  "org.http4s" %% "http4s-testing" % http4sVersion % "test"
+  // "org.typelevel" %% "scalaz-specs2" % "0.5.0" % "test",
+  "org.http4s" %% "http4s-testing" % http4sVersion % "test",
+  "org.scalacheck" %% "scalacheck" % "1.13.4" % "test"
 )

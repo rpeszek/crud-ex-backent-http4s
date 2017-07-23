@@ -33,6 +33,13 @@ object model {
     implicit val evThingIdFromInt: IntId[ThingId] = new IntId[ThingId] {
       override def fromInt: (Int) => ThingId = i => ThingId(i)
     }
+    implicit val evThingIdEqual: Equal[ThingId] = new Equal[ThingId] {
+      override def equal(a1: ThingId, a2: ThingId): Boolean = a1.id === a2.id
+    }
+    implicit val evUserIdEqual: Equal[UserId] = new Equal[UserId] {
+      override def equal(a1: UserId, a2: UserId): Boolean = a1.id === a2.id
+    }
+
     implicit val evThingIdEncoder: Encoder[ThingId] =
       Encoder.encodeLong.contramap[ThingId](_.id)
     implicit val evUserIdEncoder: Encoder[UserId] =

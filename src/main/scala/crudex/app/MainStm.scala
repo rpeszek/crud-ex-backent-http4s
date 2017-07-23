@@ -1,17 +1,15 @@
 package crudex.app
 
-
 import org.http4s.server.{Server, ServerApp}
-
-import scalaz.concurrent.Task
-// import org.http4s.server.{Server, ServerApp}
-
 import org.http4s.server.blaze._
 import org.http4s.server.syntax._
 
-import crudex.web._
+import scalaz.concurrent.Task
+
 import crudex.model._
-import crudex.app.Common._
+import crudex.persist.sql.Common._
+import crudex.web._
+
 import crudex.persist.stm.ThingStm._
 
 /*

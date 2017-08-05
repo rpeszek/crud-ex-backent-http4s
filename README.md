@@ -1,5 +1,5 @@
 Example backend CRUD project in Scala using http4s and (currently ScalaSTM).
-See my CRUD umbrella project:  [typesafe-test.web-polyglot](https://github.com/rpeszek/typesafe-test.web-polyglot.git).
+See my CRUD umbrella project:  [typesafe-web-polyglot](https://github.com/rpeszek/typesafe-web-polyglot).
 
 I am new to Scala.  This project uses
 
@@ -11,6 +11,5 @@ I am new to Scala.  This project uses
 * doobie sql library
 * spec2 test for SQL schema correctness
 
-My goal was to implement polymorphic Http endpoints and polymorphic persistence effects using type class pattern.
-CRUD == no business logic so things stay somewhat dull.
+My goal was to implement polymorphic Http endpoints and polymorphic persistence effects.
 
